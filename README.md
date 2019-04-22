@@ -7,9 +7,10 @@ Building some neural networks from "scratch" for learning purposes
 
 - logistic feedforward NN
 - backpropagation
-- stochastic gradient descent 
+- stochastic gradient descent
+- numerical gradient checking 
 - batch normalization 
-- ( maybe dropout regularization)
+- (maybe dropout regularization)
 
 ### In TensorFlow:
 
