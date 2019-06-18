@@ -31,12 +31,12 @@ class FeedForwardNeuralNetwork:
 
         # activations are in columns
         # minimum one hidden layer
-        # perceptron
+        # depth = 0 => perceptron
         if depth == 0:
             self.network.append((np.random.normal(0, 1, (input_size + 1, output_size))))
             return
 
-        # deep NN
+        # deep NN with normally distributed initial weights
         self.network.append(np.random.normal(0, 1, (input_size + 1, hidden_width)))
         for i in range(depth - 1):
             self.network.append(np.random.normal(0, 1, (self.network[-1].shape[1] + 1, hidden_width)))
@@ -67,8 +67,8 @@ class FeedForwardNeuralNetwork:
         # TODO: implement gradient checking by comparing with numerical derivative
         pass
 
-    def _cost(self, dataset_input, dataset_output, weight_decay):
-        h = sigmoid(self.feed_forward(dataset_input) - dataset_output)
+    def _cost(self, dataset_input, dataset_output, weight_decay=0):
+        h = sigmoid(self.feed_forward(dataset_input))
 
         # logistic cost function
         j = np.sum(-dataset_output * np.log(h) - (1 - dataset_output) * np.log(1 - h)) / dataset_input.shape[0]
