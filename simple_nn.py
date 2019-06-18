@@ -44,30 +44,52 @@ class FeedForwardNeuralNetwork:
 
         return
 
-    def feed_forward(self, dataset):
+    def feed_forward(self, dataset, save_activations=False):
 
         ff_data = dataset.transpose()
+        activations = [ff_data]
 
         # +2 to account for input and output weights
         for i in range(self.depth+2):
             ff_data = np.concatenate((np.ones((1, ff_data.shape[1])), ff_data))
             ff_data = sigmoid(self.network[i].transpose() @ ff_data)
+            if save_activations:
+                activations.append(ff_data)
 
-        return ff_data
+        if save_activations:
+            return activations
+        else:
+            return ff_data
+
+    def back_prop(self, activations, dataset_output, alpha, weight_decay=0):
+        # TODO: test the backpropagation algorithm
+        m = activations[0].shape[0]
+        g = (dataset_output - activations[-1]) / (activations[-1] * (1 - activations[-1])) / m
+
+        for k in range(self.depth, 0, -1):
+            # calculate gradient
+            g = alpha * g * sigmoid(self.network[k].transpose() @ activations[k], derivative=True) \
+                               * activations[k-1]
+            self.network[k] += g
+
+            # add weight decay to gradient calculation
+            if weight_decay != 0: # don't change the bias terms, so we replace the top row of weights with zeros
+                self.network[k] += weight_decay / m \
+                                   * np.concatenate(np.zeros(1, self.network[k].shape[1]), self.network[k][1:, :])
+
+            g *= self.network[k]
+
 
     def train(self, dataset, epochs):
         # TODO: implement training
         pass
 
-    def _backprop(self, gradient):
-        # TODO: implement backprop
-        pass
 
     def check_gradient(self, dataset):
         # TODO: implement gradient checking by comparing with numerical derivative
         pass
 
-    def _cost(self, dataset_input, dataset_output, weight_decay=0):
+    def cost(self, dataset_input, dataset_output, weight_decay=0):
         h = sigmoid(self.feed_forward(dataset_input))
 
         # logistic cost function
